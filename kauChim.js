@@ -58,7 +58,7 @@ export class kauChim extends plugin {
     if (this.e.isGroup) {
       msg = '\n' + msg
     }
-    await this.reply(msg, false, { at: true })
+    await this.reply(msg, { at: true })
     if (card?.item) {
       this.reply(card?.item)
     }
