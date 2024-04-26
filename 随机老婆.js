@@ -17,6 +17,7 @@ export class RandomWife extends plugin {
   }
 
   async randomWife (e) {
+    if (!e.isGroup) return await e.reply('别找了，我就你老婆呀，真笨💕')
     const gml = await e.bot.GetGroupMemberList({ group_id: e.group_id })
     const m = gml[Math.floor(Math.random() * gml.length)]
     const sex = m.sex === 'male' ? '他' : '她'
