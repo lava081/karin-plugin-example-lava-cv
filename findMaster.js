@@ -18,20 +18,20 @@ export class find_Master extends plugin {
   async like () {
     const msg = []
     msg.push(segment.text('我的主人是'))
-    for (let master of Cfg.master) {
+    Cfg.master.forEach((master) => {
       if (typeof master == 'number') {
         msg.push(segment.text('\n'))
         msg.push(segment.at(+master))
         msg.push(segment.text(`(${master})`))
       }
-    }
-    for (let master of Cfg.admin) {
+    })
+    Cfg.admin.forEach((master) => {
       if (typeof master == 'number') {
         msg.push(segment.text('\n'))
         msg.push(segment.at(+master))
         msg.push(segment.text(`(${master})`))
       }
-    }
+    })
     await this.reply(msg)
   }
 }
