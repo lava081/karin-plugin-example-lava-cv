@@ -1,4 +1,4 @@
-import { App, segment } from '#Karin'
+import { Cfg, App, segment } from '#Karin'
 import os from 'os'
 import fs from 'fs'
 
@@ -7,11 +7,11 @@ const app = App.init({
   priority: -2
 })
 app.reg({
-  reg: '^#?(状态|status)$',
+  reg: '^脑(状态|status)$',
   permission: 'master',
   fnc: 'status',
   async status () {
-    await this.reply(segment.text(`${getCpuInfo()}\n\n内存占用：${getMemoryUsage()}\n\n存储占用：${await getDiskUsage() || '未知'}\n\n系统：${getSystemInfo()}\n\n运行时间：${formatTime(os.uptime())}`))
+    await this.reply(segment.text(`${getCpuInfo()}\n\n内存占用：${getMemoryUsage()}\n\n存储占用：${await getDiskUsage() || '未知'}\n\n系统：${getSystemInfo()}\n\n运行时间：${formatTime(os.uptime())}\n\n框架：${getVersion()}`))
     return false
   }
 })
@@ -53,6 +53,10 @@ async function getDiskUsage () {
 
 function getSystemInfo () {
   return `${os.type()}-${os.release()}_${os.machine()}`
+}
+
+function getVersion () {
+  return `${Cfg.package.name}-v${Cfg.package.version}`
 }
 
 function formatBytes (bytes) {
