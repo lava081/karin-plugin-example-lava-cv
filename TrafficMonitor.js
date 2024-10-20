@@ -1,25 +1,61 @@
-import { Cfg, App, segment } from '#Karin'
+import { Cfg, plugin, segment, common, logger, Bot } from 'node-karin'
 import os from 'os'
 import fs from 'fs'
 
-const app = App.init({
-  name: '本机状态',
-  priority: -2
-})
-app.reg({
-  reg: '^脑(状态|status)$',
-  permission: 'master',
-  fnc: 'status',
-  async status () {
-    await this.reply(segment.text(`${getCpuInfo()}\n\n内存占用：${getMemoryUsage()}\n\n存储占用：${await getDiskUsage() || '未知'}\n\n系统：${getSystemInfo()}\n\n运行时间：${formatTime(os.uptime())}\n\n框架：${getVersion()}`))
+export class TrafficMonitor extends plugin {
+  constructor () {
+    super({
+      name: '本机状态',
+      dsc: '查看系统占用的无额外依赖临时方案',
+      priority: 100,
+      rule: [
+        {
+          reg: /^#状态$/,
+          fnc: 'status',
+        },
+        {
+          reg: /^#?账号列表$/,
+          fnc: 'accounts',
+        },
+      ],
+    })
+  }
+
+  async status (e) {
+    await this.reply(segment.text(`${await getCpuInfo()}\n\n内存：${getMemoryUsage()}\n\n存储：${await getDiskUsage() || '未知'}\n\n系统：${getSystemInfo()}\n开机时长：${formatTime(os.uptime())}\n\n${await getVersion(e)}`))
+    this.accounts()
     return false
   }
-})
 
-function getCpuInfo () {
+  async accounts () {
+    await this.reply(segment.text(await getAccounts()))
+    return false
+  }
+}
+
+async function getAccounts () {
+  const accounts = await Bot.getBotAll(true)
+  const accountList = accounts.map(account => `-> 适配器${account.index} <-\n\t昵称：${account.bot.account.name || '???'}\n\t账号：${account.bot.account.uin || account.bot.account.uin || '???'}\n\t适配器：${account.bot.version.app_name || account.bot.version.name || '???'}-v${account.bot.version.version || '?'}\n\t连接时长：${formatTime((Date.now() - account.bot.adapter.start_time) / 1000)}`)
+  return accountList.join('\n\n')
+}
+
+async function getCpuInfo () {
+  const cpu_time_current = []
   // 获取CPU平均负载
   const usage = os.loadavg()
 
+  const cpu_time_0 = getCpuTime()
+  await common.sleep(1000)
+  const cpu_time_1 = getCpuTime()
+
+  cpu_time_1.forEach(cpu => {
+    cpu_time_current.push(`  核心${cpu.id}：${(((cpu.total - cpu_time_0[cpu.id].total) - (cpu.idle - cpu_time_0[cpu.id].idle)) / (cpu.total - cpu_time_0[cpu.id].total) * 100).toFixed(2)}%`)
+  })
+
+  return `CPU负载(根据进程数)：${(usage[0] * 100).toFixed(2)}%\nCPU使用率(根据空闲时间)：\n${cpu_time_current.join('\n')}\nCPU型号：\n${cpu_time_1[0].model}`
+}
+
+function getCpuTime () {
   const usagetimes = []
 
   // 获取CPU核心信息
@@ -31,10 +67,9 @@ function getCpuInfo () {
     Object.values(times).forEach(time => {
       totalTime += time
     })
-    usagetimes.push(`  核心${index}：${((totalTime - times.idle) / totalTime * 100).toFixed(2)}%`)
+    usagetimes.push({ id: index, idle: times.idle, total: totalTime, model: core.model })
   })
-
-  return `CPU负载(根据进程数)：${(usage[0] * 100).toFixed(2)}%\nCPU使用率(根据空闲时间)：\n${usagetimes.join('\n')}\nCPU型号：\n${cpuInfo[0].model}`
+  return usagetimes
 }
 
 function getMemoryUsage () {
@@ -55,8 +90,14 @@ function getSystemInfo () {
   return `${os.type()}-${os.release()}_${os.machine()}`
 }
 
-function getVersion () {
-  return `${Cfg.package.name}-v${Cfg.package.version}`
+async function getVersion (e) {
+  let adapter = {}
+  try {
+    adapter = await e.bot.GetVersion()
+  } catch (error) {
+    logger.error('获取适配器版本失败' + error)
+  }
+  return `框架：${Cfg.package.name}-v${Cfg.package.version}\n适配器：${adapter.app_name || adapter.name || '???'}-v${adapter.version || '?'}`
 }
 
 function formatBytes (bytes) {
@@ -68,12 +109,10 @@ function formatBytes (bytes) {
 }
 
 function formatTime (uptime) {
-  let [day, hour, minute] = [86400, 3600, 60].map(unit => {
-    let value = Math.floor(uptime / unit)
+  const [day, hour, minute] = [86400, 3600, 60].map(unit => {
+    const value = Math.floor(uptime / unit)
     uptime %= unit
     return value
   })
-  return `${day}天${hour}小时${minute}分钟`
+  return `${day > 0 ? `${day}天` : ''}${(day > 0 || hour > 0) ? `${hour}时` : ''}${minute}分`
 }
-
-export const status2 = app.plugin(app)

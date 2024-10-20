@@ -5,7 +5,7 @@
  */
 import lodash from 'lodash'
 import moment from 'moment'
-import { plugin, redis } from '#Karin'
+import { plugin, redis } from 'node-karin'
 
 export class kauChim extends plugin {
   constructor () {

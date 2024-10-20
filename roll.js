@@ -3,7 +3,7 @@
  * @see {@link https://github.com/liuly0322/l-plugin Original Repository}
  * @description Original code from l-plugin. Adapted for Karin by 岩浆 on 2024.04.27.
  */
-import { plugin } from '#Karin'
+import { plugin } from 'node-karin'
 import lodash from 'lodash'
 
 export class dice extends plugin {

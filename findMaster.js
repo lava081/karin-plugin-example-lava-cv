@@ -1,4 +1,4 @@
-import { plugin, segment, Cfg } from '#Karin'
+import { plugin, segment, Cfg } from 'node-karin'
 export class find_Master extends plugin {
   constructor () {
     super({
@@ -9,9 +9,9 @@ export class find_Master extends plugin {
       rule: [
         {
           reg: '^#?你主人是谁$',
-          fnc: 'like'
-        }
-      ]
+          fnc: 'like',
+        },
+      ],
     })
   }
 
@@ -19,14 +19,14 @@ export class find_Master extends plugin {
     const msg = []
     msg.push(segment.text('我的主人是'))
     Cfg.master.forEach((master) => {
-      if (typeof master == 'number') {
+      if (Number(master)) {
         msg.push(segment.text('\n'))
         msg.push(segment.at(+master))
         msg.push(segment.text(`(${master})`))
       }
     })
     Cfg.admin.forEach((master) => {
-      if (typeof master == 'number') {
+      if (Number(master)) {
         msg.push(segment.text('\n'))
         msg.push(segment.at(+master))
         msg.push(segment.text(`(${master})`))

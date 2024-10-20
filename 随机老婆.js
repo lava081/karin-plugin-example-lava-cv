@@ -1,4 +1,4 @@
-import { segment, plugin } from '#Karin'
+import { segment, plugin } from 'node-karin'
 
 export class RandomWife extends plugin {
   constructor () {
@@ -18,13 +18,12 @@ export class RandomWife extends plugin {
 
   async randomWife (e) {
     if (!e.isGroup) return await e.reply('别找了，我就你老婆呀，真笨💕')
-    const gml = await e.bot.GetGroupMemberList({ group_id: e.group_id })
+    const gml = await e.bot.GetGroupMemberList(e.group_id)
     const m = gml[Math.floor(Math.random() * gml.length)]
-    const sex = m.sex === 'male' ? '他' : '她'
     const res = [
       segment.text('你的群CP是'),
-      segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${m.user_id}`),
-      segment.text(`【${m.nickname}】(${m.user_id})\n看好${sex}哦，别让${sex}乱跑~`)
+      segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${m.uin}`),
+      segment.text(`【${m.card || m.nick}】(${m.uin})\n看好她哦，别让她乱跑~`)
     ]
     await e.reply(res, { at: true })
   }
