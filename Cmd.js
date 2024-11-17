@@ -5,7 +5,7 @@ export class CommandRunner extends plugin {
   constructor () {
     super({
       name: '命令执行器',
-      dsc: '执行命令',
+      desc: '执行命令',
       event: 'message',
       priority: 100,
       rule: [
@@ -46,11 +46,11 @@ export class CommandRunner extends plugin {
 }
 
 /**
- * 异步执行命令并回复执行结果
+ * 执行命令
  * @param {string} cmd 命令
  * @param {string} cwd 工作目录
  */
-export async function Cmd (cmd, cwd = process.cwd()) {
+async function Cmd (cmd, cwd = process.cwd()) {
   return new Promise((resolve) => {
     exec(cmd, { cwd, stdio: 'inherit' }, (error, stdout, stderr) => {
       const info = error ? error.message : (stderr || stdout)
@@ -61,11 +61,11 @@ export async function Cmd (cmd, cwd = process.cwd()) {
 }
 
 /**
- * 异步执行js语句
+ * 执行js语句
  * @param {string} cmd js语句
  * @param {KarinMessageType} e
  */
-export async function Js (cmd, e) {
+async function Js (cmd, e) {
   try {
     // eslint-disable-next-line no-eval
     const result = await eval(cmd)
