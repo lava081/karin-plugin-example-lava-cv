@@ -30,7 +30,12 @@ export class CommandRunner extends plugin {
     const cmd = e.msg.replace(/^#?rc/, '').replace(/-path=(.*)$/, '').trim()
     const path = e.msg.match(/-path=(.*)$/)?.[1]
     this.reply(segment.text('正在执行：' + cmd))
-    const result = await Cmd(cmd, path)
+    let result = await Cmd(cmd, path)
+    if (typeof result === 'object') {
+      result = JSON.stringify(result, null, 2)
+    } else if (String(result) === '') {
+      result = 'null'
+    }
     return this.reply(segment.text(String(result).trim()))
   }
 
@@ -40,6 +45,8 @@ export class CommandRunner extends plugin {
     let result = await Js(js, e)
     if (typeof result === 'object') {
       result = JSON.stringify(result, null, 2)
+    } else if (String(result) === '') {
+      result = 'null'
     }
     return this.reply(segment.text(String(result).trim()))
   }
