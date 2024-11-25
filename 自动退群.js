@@ -47,7 +47,7 @@ async function add_to_black_list (e, msg) {
   const admins = Cfg.admin.map((admin) => karin.contactFriend(admin))
   for (const contact of masters.concat(admins)) {
     try {
-      await karin.sendMsg(e.self_id, contact, segment.text(msg))
+      await karin.sendMsg(e.self_id, contact, [segment.image(e.bot.getGroupAvatarUrl(e.content.group_id)), segment.text(msg)])
     } catch (err) { logger.error(err) }
   }
 }
