@@ -27,7 +27,7 @@ export class CommandRunner extends plugin {
   /**
    * 支持在指令末尾添加 `-path=xxx` 来指定工作目录，由于目录可能存在空格，该参数必须放在最后
    * 支持添加 `-msg=xxx` 来指定命令的编码方式，可选'base64'，默认为文本
-   * 支持添加 `-reply=xxx` 来指定回复内容的编码方式，可选'base64'，默认为文本
+   * 支持添加 `-reply=xxx` 来指定回复内容的编码方式，可选'base64'|'image'，默认为文本
    */
   async run_command (e) {
     let cmd = e.msg.replace(/^#?rc/, '').replace(/^#?rjs/, '').replace(/-path=(.*)$/, '').replace(/-reply=([^\s]*)/, '').trim()
